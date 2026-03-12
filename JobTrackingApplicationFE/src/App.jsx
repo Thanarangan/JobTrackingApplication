@@ -13,6 +13,8 @@ import Dashboard from "./pages/app/Dashboard";
 import Applications from "./pages/app/Applications";
 import Resumes from "./pages/app/Resumes";
 import Profile from "./pages/app/Profile";
+import ResumeAnalyzer from "./pages/app/ResumeAnalyzer";
+import SuggestedJobs from "./pages/app/SuggestedJobs";
 import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 const App = () => (<QueryClientProvider client={queryClient}>
@@ -31,6 +33,8 @@ const App = () => (<QueryClientProvider client={queryClient}>
               <Route path="dashboard" element={<Dashboard />}/>
               <Route path="applications" element={<Applications />}/>
               <Route path="resumes" element={<Resumes />}/>
+              <Route path="resume-analyzer" element={<ResumeAnalyzer />}/>
+              <Route path="suggested-jobs" element={<SuggestedJobs />}/>
               <Route path="profile" element={<Profile />}/>
             </Route>
             <Route path="*" element={<NotFound />}/>

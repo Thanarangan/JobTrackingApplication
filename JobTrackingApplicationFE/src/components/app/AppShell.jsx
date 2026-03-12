@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Briefcase, FileText, User, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, Briefcase, FileText, User, LogOut, Menu, X, Brain, Sparkles } from "lucide-react";
 import { useAuth } from "@/auth/AuthProvider";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -7,16 +7,18 @@ const sidebarLinks = [
     { label: "Dashboard", to: "/app/dashboard", icon: LayoutDashboard },
     { label: "Applications", to: "/app/applications", icon: Briefcase },
     { label: "Resumes", to: "/app/resumes", icon: FileText },
+    { label: "Analyzer", to: "/app/resume-analyzer", icon: Brain },
+    { label: "Suggested Jobs", to: "/app/suggested-jobs", icon: Sparkles },
     { label: "Profile", to: "/app/profile", icon: User },
 ];
 const AppShell = () => {
     const { logout } = useAuth();
     const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    return (<div className="flex min-h-screen bg-background">
+    return (<div className="flex h-screen overflow-hidden bg-background">
       {sidebarOpen && (<div className="fixed inset-0 z-40 bg-foreground/20 lg:hidden" onClick={() => setSidebarOpen(false)}/>)}
 
-      <aside className={cn("fixed left-0 top-0 z-50 flex h-screen w-64 flex-col border-r border-border bg-card transition-transform duration-300 lg:static lg:translate-x-0", sidebarOpen ? "translate-x-0" : "-translate-x-full")}>
+      <aside className={cn("fixed left-0 top-0 z-50 flex h-screen w-64 shrink-0 flex-col overflow-hidden border-r border-border bg-card transition-transform duration-300 lg:static lg:translate-x-0", sidebarOpen ? "translate-x-0" : "-translate-x-full")}>
         <div className="flex items-center justify-between px-6 py-5 border-b border-border">
           <Link
             to="/"
@@ -30,7 +32,7 @@ const AppShell = () => {
           </button>
         </div>
 
-        <nav className="flex-1 space-y-1 px-3 py-4">
+        <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
           {sidebarLinks.map((link) => {
             const active = location.pathname === link.to;
             return (<Link key={link.to} to={link.to} onClick={() => setSidebarOpen(false)} className={cn("flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors", active
@@ -51,7 +53,7 @@ const AppShell = () => {
       </aside>
 
       {/* Main content */}
-      <div className="flex flex-1 flex-col">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <header className="sticky top-0 z-30 flex items-center gap-4 border-b border-border bg-card/80 backdrop-blur-lg px-6 py-3 lg:hidden">
           <button onClick={() => setSidebarOpen(true)}>
             <Menu className="h-5 w-5"/>
@@ -64,7 +66,7 @@ const AppShell = () => {
             <span className="ml-0.5 text-foreground">Trackr</span>
           </Link>
         </header>
-        <main className="flex-1 p-6 lg:p-10">
+        <main className="flex-1 overflow-y-auto p-6 lg:p-10">
           <Outlet />
         </main>
       </div>

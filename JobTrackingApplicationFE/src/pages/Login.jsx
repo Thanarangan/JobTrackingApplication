@@ -25,12 +25,11 @@ const Login = () => {
             navigate("/app/dashboard");
         }
         catch (err) {
-            const msg = err?.response?.data?.message || err?.message || "Login failed";
             if (err?.code === "ERR_NETWORK") {
                 toast.error("Cannot connect to server. Please check if the backend is running.");
             }
             else {
-                toast.error(msg);
+                toast.error(err?.message || "Login failed");
             }
         }
         finally {

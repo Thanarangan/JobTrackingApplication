@@ -3,6 +3,12 @@ import apiClient from "@/api/apiClient";
 const AuthContext = createContext(null);
 const ACCESS_TOKEN_KEY = "access_token";
 const USER_ID_KEY = "user_id";
+const getApiErrorMessage = (error, fallback) => {
+    return (error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        error?.message ||
+        fallback);
+};
 export const useAuth = () => {
     const ctx = useContext(AuthContext);
     if (!ctx)
@@ -13,6 +19,9 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(localStorage.getItem(ACCESS_TOKEN_KEY));
     const [isLoading, setIsLoading] = useState(true);
+    const updateCurrentUser = useCallback((nextUser) => {
+        setUser(nextUser);
+    }, []);
     useEffect(() => {
         if (!token) {
             setIsLoading(false);
@@ -35,34 +44,55 @@ export const AuthProvider = ({ children }) => {
             .finally(() => setIsLoading(false));
     }, [token]);
     const login = useCallback(async (username, password) => {
-        const res = await apiClient.post("/api/auth/login", { username, password });
-        const t = res.data.token || res.data.accessToken;
-        const userId = res.data.userId;
-        if (!t || !userId) {
-            throw new Error("Invalid login response from server");
+        try {
+            const res = await apiClient.post("/api/auth/login", {
+                username: username.trim(),
+                password,
+            });
+            const t = res.data.token || res.data.accessToken;
+            const userId = res.data.userId;
+            if (!t || !userId) {
+                throw new Error("Invalid login response from server");
+            }
+            localStorage.setItem(ACCESS_TOKEN_KEY, t);
+            localStorage.setItem(USER_ID_KEY, String(userId));
+            setToken(t);
+            const userRes = await apiClient.get(`/api/users/${userId}`);
+            setUser(userRes.data);
         }
-        localStorage.setItem(ACCESS_TOKEN_KEY, t);
-        localStorage.setItem(USER_ID_KEY, String(userId));
-        setToken(t);
-        const userRes = await apiClient.get(`/api/users/${userId}`);
-        setUser(userRes.data);
+        catch (error) {
+            throw new Error(getApiErrorMessage(error, "Login failed"));
+        }
     }, []);
     const register = useCallback(async (username, name, email, password, age) => {
-        const payload = { username, name, email, password };
-        if (age !== undefined)
-            payload.age = age;
-        await apiClient.post("/api/auth/register", payload);
-        const loginRes = await apiClient.post("/api/auth/login", { username, password });
-        const t = loginRes.data.token || loginRes.data.accessToken;
-        const userId = loginRes.data.userId;
-        if (!t || !userId) {
-            throw new Error("Invalid login response from server");
+        try {
+            const payload = {
+                username: username.trim(),
+                name: name.trim(),
+                email: email.trim(),
+                password,
+            };
+            if (age !== undefined)
+                payload.age = age;
+            await apiClient.post("/api/auth/register", payload);
+            const loginRes = await apiClient.post("/api/auth/login", {
+                username: payload.username,
+                password,
+            });
+            const t = loginRes.data.token || loginRes.data.accessToken;
+            const userId = loginRes.data.userId;
+            if (!t || !userId) {
+                throw new Error("Invalid login response from server");
+            }
+            localStorage.setItem(ACCESS_TOKEN_KEY, t);
+            localStorage.setItem(USER_ID_KEY, String(userId));
+            setToken(t);
+            const userRes = await apiClient.get(`/api/users/${userId}`);
+            setUser(userRes.data);
         }
-        localStorage.setItem(ACCESS_TOKEN_KEY, t);
-        localStorage.setItem(USER_ID_KEY, String(userId));
-        setToken(t);
-        const userRes = await apiClient.get(`/api/users/${userId}`);
-        setUser(userRes.data);
+        catch (error) {
+            throw new Error(getApiErrorMessage(error, "Registration failed"));
+        }
     }, []);
     const logout = useCallback(() => {
         localStorage.removeItem(ACCESS_TOKEN_KEY);
@@ -70,7 +100,7 @@ export const AuthProvider = ({ children }) => {
         setToken(null);
         setUser(null);
     }, []);
-    return (<AuthContext.Provider value={{ user, token, isAuthenticated: !!token, isLoading, login, register, logout }}>
+    return (<AuthContext.Provider value={{ user, token, isAuthenticated: !!token, isLoading, login, register, updateCurrentUser, logout }}>
       {children}
     </AuthContext.Provider>);
 };
