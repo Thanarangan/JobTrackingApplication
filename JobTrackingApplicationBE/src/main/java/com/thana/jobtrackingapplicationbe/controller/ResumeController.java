@@ -1,7 +1,11 @@
 package com.thana.jobtrackingapplicationbe.controller;
 
+import com.thana.jobtrackingapplicationbe.dto.resume.ResumeAnalysisRequest;
+import com.thana.jobtrackingapplicationbe.dto.resume.ResumeAnalysisResponse;
 import com.thana.jobtrackingapplicationbe.model.ResumeFile;
+import com.thana.jobtrackingapplicationbe.service.ResumeAnalysisService;
 import com.thana.jobtrackingapplicationbe.service.ResumeService;
+import jakarta.validation.Valid;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,9 +18,11 @@ import java.util.Map;
 public class ResumeController {
 
     private final ResumeService resumeService;
+    private final ResumeAnalysisService resumeAnalysisService;
 
-    public ResumeController(ResumeService resumeService) {
+    public ResumeController(ResumeService resumeService, ResumeAnalysisService resumeAnalysisService) {
         this.resumeService = resumeService;
+        this.resumeAnalysisService = resumeAnalysisService;
     }
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -50,5 +56,10 @@ public class ResumeController {
     public ResponseEntity<?> delete(@PathVariable Long resumeId) {
         resumeService.delete(resumeId);
         return ResponseEntity.ok(Map.of("message", "Deleted"));
+    }
+
+    @PostMapping("/analyze")
+    public ResponseEntity<ResumeAnalysisResponse> analyze(@Valid @RequestBody ResumeAnalysisRequest request) {
+        return ResponseEntity.ok(resumeAnalysisService.analyze(request.getUserId(), request.getJobDescription()));
     }
 }

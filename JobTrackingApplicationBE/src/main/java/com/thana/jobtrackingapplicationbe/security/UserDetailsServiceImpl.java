@@ -18,6 +18,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         var user = userRepo.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
+        if (user.getPasswordHash() == null || user.getPasswordHash().isBlank()) {
+            throw new UsernameNotFoundException("User account is not configured for password login");
+        }
+
         return User.builder()
                 .username(user.getUsername())
                 .password(user.getPasswordHash())

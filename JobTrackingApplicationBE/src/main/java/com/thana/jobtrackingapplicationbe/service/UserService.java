@@ -34,6 +34,18 @@ public class UserService {
         u.setName(req.getName());
         u.setEmail(req.getEmail());
         u.setAge(req.getAge());
+        u.setHeadline(req.getHeadline());
+        u.setTargetRole(req.getTargetRole());
+        u.setPreferredLocation(req.getPreferredLocation());
+        u.setWorkMode(req.getWorkMode());
+        u.setExperienceLevel(req.getExperienceLevel());
+        u.setSkills(req.getSkills());
+        u.setBio(req.getBio());
+        u.setAvatarUrl(req.getAvatarUrl());
+        u.setLinkedInUrl(req.getLinkedInUrl());
+        u.setGithubUrl(req.getGithubUrl());
+        u.setPortfolioUrl(req.getPortfolioUrl());
+        u.setPreferredJobBoards(req.getPreferredJobBoards());
         return map(userRepo.save(u));
     }
 
@@ -43,6 +55,24 @@ public class UserService {
     }
 
     private UserResponse map(AppUser u) {
-        return new UserResponse(u.getId(), u.getUsername(), u.getName(), u.getEmail(), u.getAge());
+        return new UserResponse(
+                u.getId(),
+                u.getUsername(),
+                u.getName(),
+                u.getEmail(),
+                u.getAge(),
+                u.getHeadline(),
+                u.getTargetRole(),
+                u.getPreferredLocation(),
+                u.getWorkMode(),
+                u.getExperienceLevel(),
+                u.getSkills(),
+                u.getBio(),
+                u.getAvatarUrl(),
+                u.getLinkedInUrl(),
+                u.getGithubUrl(),
+                u.getPortfolioUrl(),
+                u.getPreferredJobBoards()
+        );
     }
 }

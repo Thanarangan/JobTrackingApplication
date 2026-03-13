@@ -8,7 +8,9 @@ import com.thana.jobtrackingapplicationbe.exception.ApiException;
 import com.thana.jobtrackingapplicationbe.model.AppUser;
 import com.thana.jobtrackingapplicationbe.repo.UserRepo;
 import com.thana.jobtrackingapplicationbe.security.JwtService;
-import org.springframework.security.authentication.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -49,12 +51,16 @@ public class AuthService {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword())
             );
-        } catch (BadCredentialsException e) {
+        } catch (AuthenticationException e) {
             throw new ApiException("Invalid username/password");
         }
 
         AppUser u = userRepo.findByUsername(req.getUsername())
                 .orElseThrow(() -> new ApiException("User not found"));
+
+        if (u.getPasswordHash() == null || u.getPasswordHash().isBlank()) {
+            throw new ApiException("This account cannot be used for password login");
+        }
 
         String token = jwtService.generateToken(u.getUsername());
         return new AuthResponse(token, u.getId(), u.getUsername());
