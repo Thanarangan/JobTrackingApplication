@@ -1,7 +1,9 @@
 import { ArrowUpRight, Briefcase, Building2, MapPin, SearchCheck, Sparkles, Wand2 } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import apiClient from "@/api/apiClient";
 import { useAuth } from "@/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -124,6 +126,7 @@ const buildJobDescription = (post, role) => {
 const SuggestedJobs = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [applyingId, setApplyingId] = useState(null);
 
   const query = useMemo(() => buildQuery(user), [user]);
   const posts = useMemo(() => buildSuggestedPosts(query), [query]);
@@ -136,6 +139,36 @@ const SuggestedJobs = () => {
         autoAnalyze: true,
       },
     });
+  };
+
+  const handleApply = async (post) => {
+    if (!user?.id) {
+      toast.error("User not found");
+      return;
+    }
+
+    const payload = {
+      userId: user.id,
+      companyName: post.company,
+      position: post.title,
+      status: "Applied",
+      salary: undefined,
+      location: post.location,
+      url: post.applyUrl,
+      dateApplied: new Date().toISOString().split("T")[0],
+      notes: `Added from Suggested Jobs. Match skills: ${post.matchedSkills.join(", ") || "Not specified"}.`,
+    };
+
+    setApplyingId(post.id);
+    try {
+      await apiClient.post("/api/applications", payload);
+      toast.success("Application added to Applications");
+      window.open(post.applyUrl, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to add application");
+    } finally {
+      setApplyingId(null);
+    }
   };
 
   return (
@@ -287,11 +320,15 @@ const SuggestedJobs = () => {
                     Find Resume
                     <SearchCheck className="ml-2 h-4 w-4" />
                   </Button>
-                  <Button asChild variant="outline" className="rounded-full">
-                    <a href={post.applyUrl} target="_blank" rel="noreferrer">
-                      Open Source Listing
-                      <ArrowUpRight className="ml-2 h-4 w-4" />
-                    </a>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="rounded-full"
+                    disabled={applyingId === post.id}
+                    onClick={() => handleApply(post)}
+                  >
+                    {applyingId === post.id ? "Applying..." : "Apply"}
+                    <ArrowUpRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
               </CardContent>
