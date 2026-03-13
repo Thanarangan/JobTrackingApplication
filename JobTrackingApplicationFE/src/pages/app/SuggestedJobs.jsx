@@ -142,13 +142,13 @@ const SuggestedJobs = () => {
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
+      transition={{ duration: 0.3 }}
       className="space-y-8"
     >
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05, duration: 0.35 }}
+        transition={{ duration: 0.3 }}
         className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"
       >
         <div>
@@ -162,7 +162,7 @@ const SuggestedJobs = () => {
         </Button>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.35 }}>
+      <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05, duration: 0.3 }}>
         <Card className="border-border/70">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -211,9 +211,9 @@ const SuggestedJobs = () => {
         {posts.map((post, index) => (
           <motion.div
             key={post.id}
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.14 + index * 0.05, duration: 0.35 }}
+            transition={{ delay: index * 0.05 }}
           >
             <Card className="border-border/70">
               <CardHeader className="space-y-4">

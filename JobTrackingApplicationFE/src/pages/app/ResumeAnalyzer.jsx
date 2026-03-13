@@ -78,17 +78,17 @@ const ResumeAnalyzer = () => {
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
+      transition={{ duration: 0.3 }}
       className="space-y-8"
     >
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05, duration: 0.35 }}>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <h1 className="text-3xl font-bold">Resume Analyzer</h1>
         <p className="mt-1 text-muted-foreground">
           Paste a job description to rank your uploaded resumes and surface the top three matches.
         </p>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.35 }}>
+      <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05, duration: 0.3 }}>
         <Card className="border-border/70 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -124,7 +124,7 @@ const ResumeAnalyzer = () => {
       {analysis && (
         <div className="space-y-6">
           <div className="grid gap-4 md:grid-cols-3">
-            <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12, duration: 0.35 }}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
               <Card>
                 <CardHeader className="pb-2">
                   <CardDescription>Resumes Checked</CardDescription>
@@ -132,7 +132,7 @@ const ResumeAnalyzer = () => {
                 </CardHeader>
               </Card>
             </motion.div>
-            <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16, duration: 0.35 }}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
               <Card>
                 <CardHeader className="pb-2">
                   <CardDescription>JD Skills Found</CardDescription>
@@ -140,7 +140,7 @@ const ResumeAnalyzer = () => {
                 </CardHeader>
               </Card>
             </motion.div>
-            <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.35 }}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
               <Card>
                 <CardHeader className="pb-2">
                   <CardDescription>Top Keywords</CardDescription>
@@ -150,7 +150,7 @@ const ResumeAnalyzer = () => {
             </motion.div>
           </div>
 
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24, duration: 0.35 }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -183,9 +183,9 @@ const ResumeAnalyzer = () => {
             {(analysis.topMatches || []).map((resume, index) => (
               <motion.div
                 key={resume.resumeId}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.28 + index * 0.05, duration: 0.35 }}
+                transition={{ delay: index * 0.05 }}
               >
                 <Card className="border-border/70 shadow-sm">
                   <CardHeader className="space-y-3">
