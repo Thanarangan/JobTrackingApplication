@@ -3,6 +3,7 @@ import apiClient from "@/api/apiClient";
 const AuthContext = createContext(null);
 const ACCESS_TOKEN_KEY = "access_token";
 const USER_ID_KEY = "user_id";
+const RESUME_ANALYZER_JD_KEY = "resume_analyzer_job_description";
 const getApiErrorMessage = (error, fallback) => {
     return (error?.response?.data?.error ||
         error?.response?.data?.message ||
@@ -97,6 +98,7 @@ export const AuthProvider = ({ children }) => {
     const logout = useCallback(() => {
         localStorage.removeItem(ACCESS_TOKEN_KEY);
         localStorage.removeItem(USER_ID_KEY);
+        localStorage.removeItem(RESUME_ANALYZER_JD_KEY);
         setToken(null);
         setUser(null);
     }, []);

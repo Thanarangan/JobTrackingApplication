@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Brain, FileSearch, Sparkles, Target } from "lucide-react";
 import { toast } from "sonner";
 import apiClient from "@/api/apiClient";
@@ -8,6 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useLocation } from "react-router-dom";
+
+const RESUME_ANALYZER_JD_KEY = "resume_analyzer_job_description";
 
 const scoreTone = (score) => {
   if (score >= 80) return "text-emerald-600";
@@ -17,18 +20,26 @@ const scoreTone = (score) => {
 
 const ResumeAnalyzer = () => {
   const { user } = useAuth();
-  const [jobDescription, setJobDescription] = useState("");
+  const location = useLocation();
+  const [jobDescription, setJobDescription] = useState(() => localStorage.getItem(RESUME_ANALYZER_JD_KEY) || "");
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
+  const hasAutoAnalyzedRef = useRef(false);
 
   const keywordPreview = useMemo(() => analysis?.topKeywords?.slice(0, 10) || [], [analysis]);
 
-  const handleAnalyze = async () => {
+  useEffect(() => {
+    localStorage.setItem(RESUME_ANALYZER_JD_KEY, jobDescription);
+  }, [jobDescription]);
+
+  const handleAnalyze = async (descriptionOverride) => {
+    const nextJobDescription = descriptionOverride ?? jobDescription;
+
     if (!user?.id) {
       toast.error("User not found");
       return;
     }
-    if (!jobDescription.trim()) {
+    if (!nextJobDescription.trim()) {
       toast.error("Paste a job description first");
       return;
     }
@@ -37,7 +48,7 @@ const ResumeAnalyzer = () => {
     try {
       const response = await apiClient.post("/api/resumes/analyze", {
         userId: user.id,
-        jobDescription,
+        jobDescription: nextJobDescription,
       });
       setAnalysis(response.data);
       toast.success("Resume analysis completed");
@@ -47,6 +58,20 @@ const ResumeAnalyzer = () => {
       setLoading(false);
     }
   };
+
+  const handleManualAnalyze = () => {
+    handleAnalyze();
+  };
+
+  useEffect(() => {
+    const shouldAutoAnalyze = Boolean(location.state?.autoAnalyze);
+    if (!shouldAutoAnalyze || hasAutoAnalyzedRef.current || !jobDescription.trim()) {
+      return;
+    }
+
+    hasAutoAnalyzedRef.current = true;
+    handleAnalyze(jobDescription);
+  }, [jobDescription, location.state, user?.id]);
 
   return (
     <div className="space-y-8">
@@ -70,12 +95,15 @@ const ResumeAnalyzer = () => {
         <CardContent className="space-y-4">
           <Textarea
             value={jobDescription}
-            onChange={(event) => setJobDescription(event.target.value)}
+            onChange={(event) => {
+              setJobDescription(event.target.value);
+              setAnalysis(null);
+            }}
             placeholder="Paste the JD here..."
             className="min-h-48 resize-y"
           />
           <div className="flex flex-wrap items-center gap-3">
-            <Button onClick={handleAnalyze} disabled={loading}>
+            <Button onClick={handleManualAnalyze} disabled={loading}>
               {loading ? "Analyzing..." : "Analyze Resumes"}
             </Button>
             <p className="text-sm text-muted-foreground">

@@ -1,10 +1,12 @@
-import { ArrowUpRight, Briefcase, Building2, MapPin, Sparkles, Wand2 } from "lucide-react";
+import { ArrowUpRight, Briefcase, Building2, MapPin, SearchCheck, Sparkles, Wand2 } from "lucide-react";
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+
+const RESUME_ANALYZER_JD_KEY = "resume_analyzer_job_description";
 
 const BOARD_URLS = {
   linkedin: (query, location) =>
@@ -88,11 +90,52 @@ const buildSuggestedPosts = ({ role, location, experienceLevel, workMode, skills
   });
 };
 
+const buildJobDescription = (post, role) => {
+  const skills = post.matchedSkills.length > 0 ? post.matchedSkills.join(", ") : "communication, ownership, execution";
+
+  return [
+    `Job Title: ${post.title}`,
+    `Company: ${post.company}`,
+    `Location: ${post.location}`,
+    `Work Mode: ${post.workMode}`,
+    `Experience Level: ${post.experienceLevel}`,
+    `Compensation: ${post.salary}`,
+    "",
+    "Role Summary:",
+    `We are hiring a ${post.title} to contribute across product delivery, collaboration, and execution for our ${role} hiring plan.`,
+    "",
+    "Key Responsibilities:",
+    `- Deliver high-quality work aligned with ${post.title} expectations.`,
+    `- Collaborate with cross-functional teams and communicate progress clearly.`,
+    `- Apply practical experience in ${skills}.`,
+    `- Support business goals in a ${post.workMode.toLowerCase()} environment.`,
+    "",
+    "Required Skills:",
+    skills,
+    "",
+    "Preferred Traits:",
+    "- Problem solving",
+    "- Ownership mindset",
+    "- Clear communication",
+  ].join("\n");
+};
+
 const SuggestedJobs = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const query = useMemo(() => buildQuery(user), [user]);
   const posts = useMemo(() => buildSuggestedPosts(query), [query]);
+
+  const handleFindResume = (post) => {
+    const nextJobDescription = buildJobDescription(post, query.role);
+    localStorage.setItem(RESUME_ANALYZER_JD_KEY, nextJobDescription);
+    navigate("/app/resume-analyzer", {
+      state: {
+        autoAnalyze: true,
+      },
+    });
+  };
 
   return (
     <div className="space-y-8">
@@ -217,6 +260,14 @@ const SuggestedJobs = () => {
                 <div className="rounded-full bg-secondary px-4 py-2 text-sm font-medium text-foreground">
                   Profile-based recommendation
                 </div>
+                <Button
+                  type="button"
+                  onClick={() => handleFindResume(post)}
+                  className="rounded-full"
+                >
+                  Find Resume
+                  <SearchCheck className="ml-2 h-4 w-4" />
+                </Button>
                 <Button asChild variant="outline" className="rounded-full">
                   <a href={post.applyUrl} target="_blank" rel="noreferrer">
                     Open Source Listing
